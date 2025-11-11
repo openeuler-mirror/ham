@@ -6,8 +6,8 @@ Version:       %{ham_version}
 Release:       1
 Summary:       Huawei HAM driver
 License:       GPLv2
-URL:           https://support.huawei.com
-Source0:       ham1.0.tar.gz
+URL:           https://gitee.com/openeuler/ham
+Source0:       ham-1.0.0.tar.gz
 Provides:      %{name}
 Vendor:        Huawei Technologies Co., Ltd.
 BuildRoot:     %{buildroot}
@@ -23,10 +23,10 @@ Requires:      kernel >= 5.10.0-136.12.0.86
 This package contains the Huawei HAM Driver
 
 %prep
-%setup -q -T -b 0 -c -n ham1.0
+%setup -q -T -b 0 -c -n ham-1.0.0
 
 %build
-cd %{_builddir}/ham1.0 && cmake -DCMAKE_BUILD_TYPE=release %{_builddir}/ham1.0
+cd %{_builddir}/ham-1.0.0 && cmake -DCMAKE_BUILD_TYPE=release %{_builddir}/ham-1.0.0
 make -j`nproc` install
 
 %install
@@ -34,7 +34,7 @@ echo "########RPM_BUILD_ROOT=${RPM_BUILD_ROOT}"
 rm -rf ${RPM_BUILD_ROOT}
 mkdir -p -m755 ${RPM_BUILD_ROOT}/%{ham_module_dir}
 mkdir -p -m755 ${RPM_BUILD_ROOT}/%{ham_lib_dir}
-%{__install} -b -m 0644 %{_builddir}/ham1.0/output/ham/lib/libham.so ${RPM_BUILD_ROOT}/%{ham_lib_dir}
+%{__install} -b -m 0644 %{_builddir}/ham-1.0.0/output/ham/lib/libham.so ${RPM_BUILD_ROOT}/%{ham_lib_dir}
 
 %clean
 rm -rf ${RPM_BUILD_ROOT}

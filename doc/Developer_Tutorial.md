@@ -115,7 +115,7 @@ int main()
 
 ### Build HAM
 Due to HAM's reliance on **libboundscheck.so**,you should get the dependent header files of 
-[libboundscheck](https://szv-open.codehub.huawei.com/OpenSourceCenter/openEuler/libboundscheck.git)
+[libboundscheck](https://gitee.com/openeuler/libboundscheck.git)
 firstly and place these header files in the 3rdparty/libboundscheck/include directory of the project path.
 
 ```shell

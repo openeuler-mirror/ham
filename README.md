@@ -19,19 +19,14 @@
 | RPM命名 | ham-libs-0.0.1.aarch64.rpm                                                                                                   |
 | so命名  | libham.so                                                                                                                    |
 | ko命名  | 无                                                                                                                            |
-| 代码仓   | openEuler/ub-ham                                                                                                             |
+| 代码仓   | openEuler/ham                                                                                                             |
 
 ## 如何贡献代码
 
-### 黄区提交代码至通用区
-
-- 下载git mm，在git命令行中执行
-  `source <(curl -k https://cmc-szver-artifactory.cmc.tools.huawei.com/artifactory/cmc-software-release/CodeHub/git-mm/0.0/git-mm-install.sh) 3.3.2`
-- 无需fork分支
-- 正常修改、新增代码
-  `git commit -m 'xxx'`
-- 提交代码
-  `git mr -y ##会新增mr，直接找人合入即可）黄区提交代码至通用区`
+1.  Fork 本仓库
+2.  新建 Feat_xxx 分支
+3.  提交代码
+4.  新建 Pull Request
 
 ### 开发指导
 详细的开发指导请参考[HAM Tutorial](doc/Developer_Tutorial.md)

@@ -5,7 +5,7 @@
 # HAM插件安装步骤
 
 ## 前提条件
-已安装OBMM、SMAP、RMRS、MXE。
+已安装obmm、ubturbo、ubs-engine。
 ## 安装步骤
 1. 安装libvirt和QEMU相关包。
 
