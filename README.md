@@ -1,37 +1,38 @@
-# ham
+## 项目介绍
 
-#### 介绍
-Based on the remote memory access capability and high bandwidth of the UB, deterministic duration virtual machine live migration is achieved, addressing planned downtime issues and ensuring system high availability.
+**HAM：High-Availability Migration**，高可用性热迁移服务，基于灵衢总线的远端内存访问能力与大带宽，实现确定性时长的虚机热迁移，解决计划内停机问题，实现系统高可用.
 
-#### 软件架构
-软件架构说明
+## 项目架构
 
+![HAM架构图](doc/images/ham_architecture.png)
 
-#### 安装教程
+## 应用适配方式
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+- **组件依赖**：依赖obmm内存借用能力及smap冷热识别、页面迁移能力
+- **轻量化部署**：插件安装完成无需配置即可使用
 
-#### 使用说明
+## 交付件类型
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+| 交付件类型 | 规范                                                                                                                           |
+|-------|------------------------------------------------------------------------------------------------------------------------------|
+| RPM版本 | 遵循[openEuler社区规范](https://gitee.com/openeuler/community/blob/master/zh/contributors/packaging.md)，以**Major.minor.patch**管理版本 |
+| RPM命名 | ham-libs-0.0.1.aarch64.rpm                                                                                                   |
+| so命名  | libham.so                                                                                                                    |
+| ko命名  | 无                                                                                                                            |
+| 代码仓   | openEuler/ham                                                                                                             |
 
-#### 参与贡献
+## 如何贡献代码
 
 1.  Fork 本仓库
 2.  新建 Feat_xxx 分支
 3.  提交代码
 4.  新建 Pull Request
 
+### 开发指导
+详细的开发指导请参考[HAM Tutorial](doc/Developer_Tutorial.md)
 
-#### 特技
+## 联系我们
+针对我们的项目，在开发、使用过程中，如果有任何的意见、建议、问题，可以参考如下：
 
-1.  使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2.  Gitee 官方博客 [blog.gitee.com](https://blog.gitee.com)
-3.  你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解 Gitee 上的优秀开源项目
-4.  [GVP](https://gitee.com/gvp) 全称是 Gitee 最有价值开源项目，是综合评定出的优秀开源项目
-5.  Gitee 官方提供的使用手册 [https://gitee.com/help](https://gitee.com/help)
-6.  Gitee 封面人物是一档用来展示 Gitee 会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+- 创建issue: xxx
+- 联系我们：xxx
