@@ -134,12 +134,6 @@ TEST_F(TestHam, migratePagesTask)
     ret = ubturbo_ham_migrate(nullptr, 0, HAM_MIGRATE_COMPLETION);
     EXPECT_EQ(ret, -ERR_CLEAR_CACHE);
 
-    /* drain ub failed */
-    MOCKER(HandleIoctl).stubs().with(eq(g_fd), eq(HAM_UB_DRAIN), any()).will(returnValue(-1))
-        .then(returnValue(0));
-    ret = ubturbo_ham_migrate(nullptr, 0, HAM_MIGRATE_COMPLETION);
-    EXPECT_EQ(ret, -ERR_DRAIN_UB);
-
     /* all success */
     ret = ubturbo_ham_migrate(nullptr, 0, HAM_MIGRATE_COMPLETION);
     EXPECT_EQ(ret, SUCCESS);

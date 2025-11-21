@@ -154,11 +154,6 @@ int32_t ubturbo_ham_migrate(HamRamPages *ramList, size_t ramNum, int32_t step)
             HAM_LOGERROR("Failed to cache clear, errno: %d.\n", errno);
             return -ERR_CLEAR_CACHE;
         }
-        ret = HandleIoctl(g_fd, HAM_UB_DRAIN, (uintptr_t) &g_scna);
-        if (ret) {
-            HAM_LOGERROR("Failed to drain ub, errno: %d.\n", errno);
-            return -ERR_DRAIN_UB;
-        }
     }
 
     return SUCCESS;
