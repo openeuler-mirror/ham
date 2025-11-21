@@ -31,7 +31,6 @@ extern "C" {
 #define HAM_STOP_MIGRATION _IOW('N', 3, unsigned long)
 #define HAM_MODIFY_PAGETABLE _IOW('N', 4, unsigned long)
 #define HAM_CACHE_CLEAR _IOW('N', 5, unsigned long)
-#define HAM_UB_DRAIN _IOW('N', 6, unsigned long)
 
 typedef enum {
     HAM_LOG_DEBUG = 0,

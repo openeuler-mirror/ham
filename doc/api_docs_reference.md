@@ -119,7 +119,6 @@ int32_t ubturbo_ham_migrate(HamRamPages *ramList, size_t ramNum, int32_t step);
 | ERR_MIGRATE_PAGES    | 页面迁移失败      |
 | ERR_MODIFY_PAGETABLE | 修改页表属性失败    |
 | ERR_CLEAR_CACHE      | 刷cache失败    |
-| ERR_DRAIN_UB         | 执行UB排空失败    |
 
 ## 约束 CONSTRAINTS
 
