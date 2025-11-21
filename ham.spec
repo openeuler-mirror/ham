@@ -5,7 +5,7 @@ Name:          ubturbo-ham-%{type}
 Version:       %{ham_version}
 Release:       1
 Summary:       Huawei HAM driver
-License:       GPLv2
+License:       MulanPSL2
 URL:           https://gitee.com/openeuler/ham
 Source0:       ham-1.0.0.tar.gz
 Provides:      %{name}
