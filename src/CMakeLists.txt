@@ -11,7 +11,5 @@ target_link_libraries(ham
         /usr/lib64/libboundscheck.so
         -Wl,--end-group)
 
-set_target_properties(ham PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_DIR}/bin)
-
 install(FILES ham.h DESTINATION ${OUTPUT_DIR}/include PERMISSIONS ${HAM_INSTALL_INCLUDE_PERMISSIONS})
 install(TARGETS ham DESTINATION ${OUTPUT_DIR}/lib PERMISSIONS ${HAM_INSTALL_LIB_PERMISSIONS})
