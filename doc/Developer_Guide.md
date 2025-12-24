@@ -9,11 +9,9 @@
    sh build.sh 
    ```
 
-2. 编译完成后根目录下会生成output文件夹，编译生成的ko、so存放在output文件夹下的ham_package文件夹中，目录结构如下：
+2. 编译完成后根目录下会生成output文件夹，编译生成的so存放在output文件夹下的ham_package文件夹中，目录结构如下：
     ```bash
     ham_package
-    ├── bin
-    │   └── ham_migrate.ko
     ├── include
     │   └── ham.h
     └── lib
