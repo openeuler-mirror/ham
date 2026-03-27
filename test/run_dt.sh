@@ -2,6 +2,8 @@
 
 set -e
 
+git submodule update --init --recursive
+
 patch_mockcpp()
 {
   if [ -f $CURRENT_PATH/3rdparty/mockcpp/mockcpp_support_arm64.patch ]; then

@@ -25,6 +25,7 @@
 #endif
 
 #define NUMA_NO_NODE (-1)
+#define MAX_NUMNODES 256
 
 STATIC pid_t g_pid;
 STATIC uint16_t g_scna;
@@ -52,6 +53,10 @@ STATIC int32_t HamCheckRamBlock(HamRamInfo *src, HamNumaInfo *dst)
         }
         if (dst && src->blockList[i].size != dst->numaList[i].size) {
             HAM_LOGERROR("The ram block size is not equal to the numa size, i: %d\n", i);
+            return -ERR_CHECK_PARAMETERS;
+        }
+        if (dst && dst->numaList[i].numaId >= MAX_NUMNODES) {
+            HAM_LOGERROR("The remote numaId is invalid, i: %d, numaId: %u\n", i, dst->numaList[i].numaId);
             return -ERR_CHECK_PARAMETERS;
         }
         if (src->blockList[i].size == 0) {

@@ -38,6 +38,7 @@ TEST_F(TestHam, checkRamBlockTask)
 {
     HamRamInfo src;
     HamNumaInfo dst;
+    dst.numaList[0].numaId = 1;
     src.num = 0;
     EXPECT_EQ(HamCheckRamBlock(&src, &dst), -ERR_CHECK_PARAMETERS);
     src.num = BATCH_NUM + 1;
