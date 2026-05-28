@@ -45,4 +45,3 @@ void HamLogFunc(int logLevel, const char *funcName, int line, const char *format
 
     g_hamLog(logLevel, funcName, line, logBuf);
 }
-

@@ -13,8 +13,8 @@
 #ifndef HAM_HAM_H
 #define HAM_HAM_H
 
-#include <stdint.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <stdlib.h>
 
 #ifdef __cplusplus
