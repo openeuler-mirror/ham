@@ -32,7 +32,8 @@ extern "C" {
 #define HAM_MODIFY_PAGETABLE _IOW('N', 4, unsigned long)
 #define HAM_CACHE_CLEAR _IOW('N', 5, unsigned long)
 
-typedef enum {
+typedef enum
+{
     HAM_LOG_DEBUG = 0,
     HAM_LOG_INFO,
     HAM_LOG_WARNING,
