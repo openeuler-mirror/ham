@@ -13,8 +13,8 @@
 #ifndef HAM_HAM_H
 #define HAM_HAM_H
 
-#include <stdint.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <stdlib.h>
 
 #ifdef __cplusplus
@@ -23,7 +23,8 @@ extern "C" {
 
 #define BATCH_NUM 4
 
-enum HamErrCode {
+enum HamErrCode
+{
     SUCCESS = 0,
     ERR_CHECK_PARAMETERS = 0x1000,
     ERR_OPERATE_DEVICE = 0x2000,
@@ -76,7 +77,8 @@ typedef struct {
     uintptr_t *hvaList;
 } HamRamPages;
 
-typedef enum {
+typedef enum
+{
     HAM_MIGRATE_PRECOPY = 0,
     HAM_MIGRATE_COMPLETION = 1,
     HAM_MIGRATE_BUTT

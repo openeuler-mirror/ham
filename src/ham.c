@@ -10,11 +10,11 @@
  * See the Mulan PSL v2 for more details.
  */
 
-#include <limits.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <unistd.h>
+#include <limits.h>
 #include <sys/ioctl.h>
+#include <unistd.h>
 
 #include "ham_comm.h"
 
@@ -64,8 +64,8 @@ STATIC int32_t HamCheckRamBlock(HamRamInfo *src, HamNumaInfo *dst)
             return -ERR_CHECK_PARAMETERS;
         }
         if (totalSize > (ULONG_MAX - src->blockList[i].size)) {
-            HAM_LOGERROR("Integer overflow, srcSize:%lu, blockList[%d].size:%lu\n",
-                         totalSize, i, src->blockList[i].size);
+            HAM_LOGERROR("Integer overflow, srcSize:%lu, blockList[%d].size:%lu\n", totalSize, i,
+                         src->blockList[i].size);
             return -ERR_CHECK_PARAMETERS;
         }
         totalSize += src->blockList[i].size;
@@ -122,7 +122,7 @@ int32_t ubturbo_ham_register(HamRamInfo *src, HamNumaInfo *dst)
         HAM_LOGERROR("Failed to open device %s, errno: %d.\n", HAM_DEVICE, errno);
         return -ERR_OPERATE_DEVICE;
     }
-    ret = HandleIoctl(g_fd, HAM_START_MIGRATION, (uintptr_t) &migration);
+    ret = HandleIoctl(g_fd, HAM_START_MIGRATION, (uintptr_t)&migration);
     if (ret) {
         HAM_LOGERROR("Failed to call kernel interface of start migration.\n");
         close(g_fd);
@@ -135,13 +135,13 @@ int32_t ubturbo_ham_register(HamRamInfo *src, HamNumaInfo *dst)
 int32_t ubturbo_ham_migrate(HamRamPages *ramList, size_t ramNum, int32_t step)
 {
     int ret;
-    MaintainInfo mtInfo = { .pid = g_pid, .cacheable = false };
+    MaintainInfo mtInfo = {.pid = g_pid, .cacheable = false};
 
     if (step > HAM_MIGRATE_BUTT) {
         HAM_LOGERROR("Invalid step value.\n", errno);
         return -ERR_CHECK_PARAMETERS;
     }
-    ret = HandleIoctl(g_fd, HAM_MIGRATE_PAGES, (uintptr_t) &g_pid);
+    ret = HandleIoctl(g_fd, HAM_MIGRATE_PAGES, (uintptr_t)&g_pid);
     if (ret) {
         HAM_LOGERROR("Failed to migrate pages, errno: %d.\n", errno);
         return ret == -ERR_OPERATE_DEVICE ? -ERR_OPERATE_DEVICE : -ERR_MIGRATE_PAGES;
@@ -149,12 +149,12 @@ int32_t ubturbo_ham_migrate(HamRamPages *ramList, size_t ramNum, int32_t step)
     HAM_LOGINFO("migrate pages completed\n");
 
     if (step == HAM_MIGRATE_COMPLETION) {
-        ret = HandleIoctl(g_fd, HAM_MODIFY_PAGETABLE, (uintptr_t) &mtInfo);
+        ret = HandleIoctl(g_fd, HAM_MODIFY_PAGETABLE, (uintptr_t)&mtInfo);
         if (ret) {
             HAM_LOGERROR("Failed to modify page table, errno: %d.\n", errno);
             return -ERR_MODIFY_PAGETABLE;
         }
-        ret = HandleIoctl(g_fd, HAM_CACHE_CLEAR, (uintptr_t) &g_pid);
+        ret = HandleIoctl(g_fd, HAM_CACHE_CLEAR, (uintptr_t)&g_pid);
         if (ret) {
             HAM_LOGERROR("Failed to cache clear, errno: %d.\n", errno);
             return -ERR_CLEAR_CACHE;
@@ -167,9 +167,9 @@ int32_t ubturbo_ham_migrate(HamRamPages *ramList, size_t ramNum, int32_t step)
 int32_t ubturbo_ham_pgtable_modify(bool cacheable)
 {
     int32_t ret;
-    MaintainInfo mtInfo = { .pid = g_pid, .cacheable = cacheable };
+    MaintainInfo mtInfo = {.pid = g_pid, .cacheable = cacheable};
 
-    ret = HandleIoctl(g_fd, HAM_MODIFY_PAGETABLE, (uintptr_t) &mtInfo);
+    ret = HandleIoctl(g_fd, HAM_MODIFY_PAGETABLE, (uintptr_t)&mtInfo);
     if (ret) {
         HAM_LOGERROR("Failed to modify page table, errno: %d.\n", errno);
         return -ERR_MODIFY_PAGETABLE;
@@ -181,7 +181,7 @@ void ubturbo_ham_unregister(void)
 {
     int ret;
 
-    ret = HandleIoctl(g_fd, HAM_STOP_MIGRATION, (uintptr_t) &g_pid);
+    ret = HandleIoctl(g_fd, HAM_STOP_MIGRATION, (uintptr_t)&g_pid);
     if (ret) {
         HAM_LOGERROR("Failed to stop migration, errno: %d.\n", errno);
     }
@@ -202,7 +202,7 @@ int32_t ubturbo_ham_rollback(pid_t srcPid)
         HAM_LOGERROR("Failed to open device %s, errno: %d.\n", HAM_DEVICE, errno);
         return -ERR_OPERATE_DEVICE;
     }
-    ret = HandleIoctl(fd, HAM_ROLLBACK_PAGES, (uintptr_t) &srcPid);
+    ret = HandleIoctl(fd, HAM_ROLLBACK_PAGES, (uintptr_t)&srcPid);
     if (ret) {
         HAM_LOGERROR("Failed to rollback pages, errno: %d.\n", errno);
         ret = -ERR_ROLLBACK_PAGES;

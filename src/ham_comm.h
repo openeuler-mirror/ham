@@ -13,11 +13,11 @@
 #ifndef HAM_COMM_H
 #define HAM_COMM_H
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
-#include "securec.h"
 #include "ham.h"
+#include "securec.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,7 +32,8 @@ extern "C" {
 #define HAM_MODIFY_PAGETABLE _IOW('N', 4, unsigned long)
 #define HAM_CACHE_CLEAR _IOW('N', 5, unsigned long)
 
-typedef enum {
+typedef enum
+{
     HAM_LOG_DEBUG = 0,
     HAM_LOG_INFO,
     HAM_LOG_WARNING,
@@ -57,17 +58,17 @@ typedef struct {
     bool cacheable;
 } MaintainInfo;
 
-void HamLogFunc(int logLevel, const char *funcName, int line,
-                const char *format, ...) __attribute__((format(printf, 4, 5)));
+void HamLogFunc(int logLevel, const char *funcName, int line, const char *format, ...)
+    __attribute__((format(printf, 4, 5)));
 
-#define HAM_LOGINFO(...)                                                  \
-    do {                                                                  \
-        HamLogFunc(HAM_LOG_INFO, __FUNCTION__, __LINE__, __VA_ARGS__);    \
+#define HAM_LOGINFO(...)                                               \
+    do {                                                               \
+        HamLogFunc(HAM_LOG_INFO, __FUNCTION__, __LINE__, __VA_ARGS__); \
     } while (0)
 
-#define HAM_LOGDEBUG(...)                                                 \
-    do {                                                                  \
-        HamLogFunc(HAM_LOG_DEBUG, __FUNCTION__, __LINE__, __VA_ARGS__);   \
+#define HAM_LOGDEBUG(...)                                               \
+    do {                                                                \
+        HamLogFunc(HAM_LOG_DEBUG, __FUNCTION__, __LINE__, __VA_ARGS__); \
     } while (0)
 
 #define HAM_LOGWARN(...)                                                  \
@@ -75,11 +76,10 @@ void HamLogFunc(int logLevel, const char *funcName, int line,
         HamLogFunc(HAM_LOG_WARNING, __FUNCTION__, __LINE__, __VA_ARGS__); \
     } while (0)
 
-#define HAM_LOGERROR(...)                                                 \
-    do {                                                                  \
-        HamLogFunc(HAM_LOG_ERROR, __FUNCTION__, __LINE__, __VA_ARGS__);   \
+#define HAM_LOGERROR(...)                                               \
+    do {                                                                \
+        HamLogFunc(HAM_LOG_ERROR, __FUNCTION__, __LINE__, __VA_ARGS__); \
     } while (0)
-
 
 #ifdef __cplusplus
 }
