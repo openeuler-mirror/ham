@@ -4,7 +4,7 @@
 
 ## Project Architecture
 
-![HAM architecture](doc/images/ham_architecture.png)
+![HAM architecture](doc/images/ham_architecture_en.png)
 
 ## Application Adaptation Method
 
