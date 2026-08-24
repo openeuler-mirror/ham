@@ -26,7 +26,7 @@ HAM (High-Availability Migration) - A high-availability live migration service t
 ## Test Commands
 
 ```shell
-# Initialize submodules (first time)
+# Initialize the remaining third-party submodule (first time)
 git submodule update --init --recursive
 
 # Build and run all DT tests with coverage report
@@ -50,7 +50,7 @@ cd test/build && ./ham_dt --gtest_filter="TestSuiteName.TestCaseName"
 
 - Requires GNU C++ compiler >= 7.3
 - Default build type follows `cmake/building.cmake` (empty type -> Release)
-- Tests use googletest + mockcpp frameworks (submodules under `test/3rdparty/`)
+- Tests use googletest (downloaded from src-openeuler at build time) and mockcpp (submodule under `test/3rdparty/`)
 - `test/run_dt.sh` initializes submodules and patches mockcpp for ARM64 automatically
 - `compile_commands.json` is in the build directory (`build/`, `test/build/`)
 - Build output lands in `output/ham/` (`lib/libham.so`, `include/ham.h`)
@@ -70,8 +70,7 @@ test/
 ├── run_dt.sh              # Test runner + coverage
 ├── conf/                  # Test config files
 └── 3rdparty/              # googletest, mockcpp
-3rdparty/
-└── libboundscheck/        # Huawei secure C library (submodule)
+3rdparty/                  # Reserved; libboundscheck is provided by the system package
 cmake/
 └── building.cmake         # Build configuration & flags
 ```

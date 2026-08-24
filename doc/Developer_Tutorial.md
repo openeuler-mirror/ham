@@ -114,9 +114,11 @@ int main()
 ## Getting started
 
 ### Build HAM
-Due to HAM's reliance on **libboundscheck.so**,you should get the dependent header files of 
-[libboundscheck](https://gitee.com/openeuler/libboundscheck.git)
-firstly and place these header files in the 3rdparty/libboundscheck/include directory of the project path.
+HAM relies on the openEuler **libboundscheck** package. Install it before building:
+
+```shell
+sudo yum install libboundscheck
+```
 
 ```shell
 git clone https://xxx/HAM.git
