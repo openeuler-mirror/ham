@@ -30,24 +30,17 @@ SET(GTEST_OPENEULER_REPO "https://gitcode.com/src-openeuler/googletest.git")
 SET(GTEST_OPENEULER_BRANCH "humble")
 SET(GTEST_OPENEULER_RAW_URL "https://gitcode.com/api/v5/repos/src-openeuler/googletest/raw/${GTEST_TARBALL_NAME}?ref=${GTEST_OPENEULER_BRANCH}")
 SET(GTEST_DOWNLOAD_DIR ${CMAKE_BINARY_DIR}/3rdparty/gtest-download)
-SET(GTEST_LOCAL_VENDOR_DIR ${THIRD_PARTY_DIR}/googletest)
 
-# 优先使用本地已放置的 googletest 源码；否则从 src-openeuler 开源仓库下载源码包
-IF(EXISTS ${GTEST_LOCAL_VENDOR_DIR}/CMakeLists.txt)
-    MESSAGE(STATUS "gtest: use local vendor source ${GTEST_LOCAL_VENDOR_DIR}")
-    SET(GTEST_SOURCE_DIR ${GTEST_LOCAL_VENDOR_DIR})
-    SET(GTEST_DOWNLOAD_COMMAND "")
-ELSE()
-    MESSAGE(STATUS "gtest: fetch openEuler open-source googletest ${GTEST_VERSION} from ${GTEST_OPENEULER_REPO}")
-    SET(GTEST_SOURCE_DIR ${GTEST_DOWNLOAD_DIR}/ros-humble-gtest-vendor-${GTEST_VERSION})
-    SET(GTEST_DOWNLOAD_COMMAND
-            ${CMAKE_COMMAND} -E make_directory ${GTEST_DOWNLOAD_DIR}
-            COMMAND curl -fsSL --retry 3 --connect-timeout 30 -o ${GTEST_DOWNLOAD_DIR}/${GTEST_TARBALL_NAME} ${GTEST_OPENEULER_RAW_URL}
-            COMMAND sh -c "echo '${GTEST_TARBALL_SHA256}  ${GTEST_DOWNLOAD_DIR}/${GTEST_TARBALL_NAME}' | sha256sum -c -"
-            COMMAND ${CMAKE_COMMAND} -E chdir ${GTEST_DOWNLOAD_DIR} ${CMAKE_COMMAND} -E tar xzf ${GTEST_DOWNLOAD_DIR}/${GTEST_TARBALL_NAME}
-            # vendor 包顶层是 ROS 包装，真正可构建的 googletest CMakeLists 为 CMakeLists.txt.upstream
-            COMMAND ${CMAKE_COMMAND} -E copy ${GTEST_SOURCE_DIR}/CMakeLists.txt.upstream ${GTEST_SOURCE_DIR}/CMakeLists.txt)
-ENDIF()
+# 始终使用锁定并校验的 openEuler 源码包，避免残留的本地目录污染构建版本
+MESSAGE(STATUS "gtest: fetch openEuler open-source googletest ${GTEST_VERSION} from ${GTEST_OPENEULER_REPO}")
+SET(GTEST_SOURCE_DIR ${GTEST_DOWNLOAD_DIR}/ros-humble-gtest-vendor-${GTEST_VERSION})
+SET(GTEST_DOWNLOAD_COMMAND
+        ${CMAKE_COMMAND} -E make_directory ${GTEST_DOWNLOAD_DIR}
+        COMMAND curl -fsSL --retry 3 --connect-timeout 30 -o ${GTEST_DOWNLOAD_DIR}/${GTEST_TARBALL_NAME} ${GTEST_OPENEULER_RAW_URL}
+        COMMAND sh -c "echo '${GTEST_TARBALL_SHA256}  ${GTEST_DOWNLOAD_DIR}/${GTEST_TARBALL_NAME}' | sha256sum -c -"
+        COMMAND ${CMAKE_COMMAND} -E chdir ${GTEST_DOWNLOAD_DIR} ${CMAKE_COMMAND} -E tar xzf ${GTEST_DOWNLOAD_DIR}/${GTEST_TARBALL_NAME}
+        # vendor 包顶层是 ROS 包装，真正可构建的 googletest CMakeLists 为 CMakeLists.txt.upstream
+        COMMAND ${CMAKE_COMMAND} -E copy ${GTEST_SOURCE_DIR}/CMakeLists.txt.upstream ${GTEST_SOURCE_DIR}/CMakeLists.txt)
 
 SET(GTEST_CMAKE_ARGS
         ${THIRD_PARTY_CMAKE_ARGS}

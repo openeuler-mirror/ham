@@ -16,7 +16,7 @@
 ### 2.1 googletest
 
 - **引入位置**：`test/3rdparty/CMakeLists.txt` 中 `EXTERNALPROJECT_ADD(gtest ...)`
-- **获取方式**：构建 DT 时从 openEuler 社区开源仓库的 humble 分支下载 `ros-humble-gtest-vendor_1.10.9004.orig.tar.gz`，并校验 SHA256（`79b5f1bd841f84ac1b289ab362031cb18ef396fb6234ddf003af09bca3e050fa`）；也可将源码手动放置于 `test/3rdparty/googletest/`，构建时会优先使用本地源码
+- **获取方式**：构建 DT 时固定从 openEuler 社区开源仓库的 humble 分支下载 `ros-humble-gtest-vendor_1.10.9004.orig.tar.gz`，并校验 SHA256（`79b5f1bd841f84ac1b289ab362031cb18ef396fb6234ddf003af09bca3e050fa`）；不自动使用 `test/3rdparty/googletest/` 中的本地源码，避免 Jenkins 残留目录污染依赖版本
 - **构建开关**：`-DBUILD_SHARED_LIBS=OFF -DINSTALL_GTEST=ON -DGOOGLETEST_VERSION=1.10.0`
 - **链接产物**：`libgtest.a`（Debug 构建为 `libgtestd.a`）静态链接进 `ham_dt`
 - **许可证**：BSD-3-Clause（源码包内 `LICENSE`）
