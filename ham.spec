@@ -13,6 +13,7 @@ Vendor:        Huawei Technologies Co., Ltd.
 BuildRoot:     %{buildroot}
 ExclusiveArch: %arm64
 BuildRequires: kernel-devel >= 5.10.0-136.12.0.86 make >= 4.3 gcc >= 10.3.1
+BuildRequires: libboundscheck
 Requires:      kernel >= 5.10.0-136.12.0.86
 
 %define debug_package %{nil}

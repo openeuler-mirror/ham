@@ -5,7 +5,7 @@ add_library(ham SHARED
         ham_comm.c
 )
 
-target_include_directories(ham PUBLIC . ${PROJECT_3RDPARTY_SRC_DIR}/libboundscheck/include)
+target_include_directories(ham PUBLIC . ${SECUREC_INCLUDE_DIR})
 target_link_libraries(ham
         -Wl,--start-group
         /usr/lib64/libboundscheck.so

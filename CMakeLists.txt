@@ -10,11 +10,15 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_EXE_LINKER_FLAGS "-pie")
 set(CMAKE_SKIP_RPATH TRUE)
 
-set(PROJECT_3RDPARTY_SRC_DIR ${PROJECT_SOURCE_DIR}/3rdparty)
-
 include("cmake/building.cmake")
 
-include_directories(${PROJECT_3RDPARTY_SRC_DIR}/libboundscheck/include)
+# 查找系统 libboundscheck 头文件 (securec.h)
+find_path(SECUREC_INCLUDE_DIR securec.h)
+if(NOT SECUREC_INCLUDE_DIR)
+    message(FATAL_ERROR "securec.h not found. Install: sudo yum install libboundscheck")
+endif()
+
+include_directories(${SECUREC_INCLUDE_DIR})
 
 if (${DEBUG_UT})
     add_compile_options(-ftest-coverage -fprofile-arcs)
