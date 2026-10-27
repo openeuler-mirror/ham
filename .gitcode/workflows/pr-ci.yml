@@ -1,0 +1,188 @@
+name: HAM_CI
+
+on:
+  pull_request:
+    types:
+      - open
+      - reopen
+      - update
+    branches:
+      - master
+
+  pull_request_comment:
+    types: [created]
+    comments: ['^\s*/retest\s*$']
+    branches:
+      - master
+
+env:
+  PR_ID: ${{ atomgit.event.pull_request.number }}
+  TARGET_BRANCH: ${{ atomgit.event.pull_request.base.ref }}
+  HEAD_SHA: ${{ atomgit.event.pull_request.head.sha }}
+
+defaults:
+  run:
+    shell: bash
+
+concurrency:
+  enable: true
+  max: 3
+  exceed-action: QUEUE
+  preemption:
+    enable: true
+    events: [mr_id]
+
+permissions:
+  repository: read
+  pr: none
+  issue: none
+  note: none
+  project: none
+
+jobs:
+  pre_commit:
+    name: pre-commit
+    runs-on: [self-hosted, openeuler, arm, cpu=8]
+    container:
+      image: swr.cn-north-4.myhuaweicloud.com/ubscore/openeuler-24.03-lts-sp3_ci_build:latest
+
+    steps:
+      - name: Checkout PR merge code
+        uses: checkout
+        with:
+          ref: refs/merge-requests/${{ env.PR_ID }}/merge
+
+      - name: Install pre-commit
+        run: |
+          set -euxo pipefail
+
+          sudo yum install -y python3 python3-pip
+
+          sudo python3 -m pip install \
+            --index-url https://repo.huaweicloud.com/repository/pypi/simple \
+            --trusted-host repo.huaweicloud.com \
+            --timeout 120 \
+            --retries 5 \
+            "pre-commit==4.3.0" \
+            "clang-format==12.0.1"
+
+          clang-format --version
+
+      - name: Run clang-format
+        run: |
+          set -euxo pipefail
+
+          # 与原 Jenkins 保持一致：
+          # 将配置中的自动修改参数 -i 改成只检查的 -n --Werror
+          sed -i 's/, -i/, -n, --Werror/g' .pre-commit-config.yaml
+
+          pre-commit run clang-format --all-files
+
+  build_x86_64:
+    name: build-x86-64
+    runs-on: [self-hosted, openeuler, x86, cpu=8]
+
+    steps:
+      - name: Architecture check
+        run: |
+          set -euxo pipefail
+
+          # HAM 当前是 ARM64 项目，ham.spec 中声明了 ExclusiveArch: %arm64。
+          # 原 Jenkins x86_64 Job 没有 checkout/build 命令，只是空 Job 返回 SUCCESS。
+          # 这里严格保留该行为。
+          echo "HAM is an ARM64-only project; x86_64 check is not applicable."
+
+  build_aarch64:
+    name: build-aarch64
+    runs-on: [self-hosted, openeuler, arm, cpu=8]
+    container:
+      image: swr.cn-north-4.myhuaweicloud.com/ubscore/soe:latest
+
+    steps:
+      - name: Checkout PR merge code
+        uses: checkout
+        with:
+          ref: refs/merge-requests/${{ env.PR_ID }}/merge
+
+      - name: Install dependencies
+        run: |
+          set -euxo pipefail
+
+          sudo yum install -y \
+            gcc \
+            gcc-c++ \
+            make \
+            cmake \
+            libboundscheck \
+            libvirt \
+            libvirt-devel \
+            dos2unix
+
+      - name: Build HAM release
+        run: |
+          set -euxo pipefail
+
+          cmake -DCMAKE_BUILD_TYPE=release .
+          make -j"$(nproc)" install
+
+          test -f output/ham/lib/libham.so
+          test -f output/ham/include/ham.h
+
+  dt:
+    name: DT
+    runs-on: [self-hosted, openeuler, arm, cpu=8]
+    container:
+      image: swr.cn-north-4.myhuaweicloud.com/ubscore/openeuler-24.03-lts-sp3_ci_build:latest
+
+    steps:
+      - name: Checkout PR merge code
+        uses: checkout
+        with:
+          ref: refs/merge-requests/${{ env.PR_ID }}/merge
+
+      - name: Install dependencies
+        run: |
+          set -euxo pipefail
+
+          sudo yum install -y \
+            git \
+            curl \
+            gcc \
+            gcc-c++ \
+            make \
+            cmake \
+            libboundscheck \
+            libvirt \
+            libvirt-devel \
+            dos2unix
+
+          if ! command -v lcov >/dev/null 2>&1 || \
+             ! command -v genhtml >/dev/null 2>&1; then
+            sudo yum install -y lcov
+          fi
+
+      - name: Prepare mockcpp
+        run: |
+          set -euxo pipefail
+
+          # 与原 Jenkins 一致，先显式获取 mockcpp。
+          if [[ ! -d test/3rdparty/mockcpp/.git ]]; then
+            git clone \
+              https://gitee.com/mirrors_sinojelly/mockcpp.git \
+              test/3rdparty/mockcpp
+          fi
+
+      - name: Run HAM DT
+        run: |
+          set -euxo pipefail
+          bash test/run_dt.sh
+
+      - name: Upload DT reports
+        if: ${{ always() }}
+        uses: upload-artifact
+        with:
+          name: ham-dt
+          path: |
+            test/build/gcovr_report/
+            test/build/coverage.info
+            test/build/gcovr_report/test_detail.xml
