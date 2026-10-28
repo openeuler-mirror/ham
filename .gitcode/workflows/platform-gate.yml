@@ -59,9 +59,12 @@ jobs:
 
           sudo yum install -y curl jq
 
-          repo_url="${ATOMGIT_REPOSITORY_URL:-https://gitcode.com/ComputingActionTest/ham_7628.git}"
-          repo="${repo_url#https://gitcode.com/}"
-          repo="${repo%.git}"
+          repo="${REPO_FULL_NAME:-}"
+          if [[ -z "${repo}" ]]; then
+            repo_url="${ATOMGIT_REPOSITORY_URL:-https://gitcode.com/ComputingActionTest/ham_7628.git}"
+            repo="${repo_url#https://gitcode.com/}"
+            repo="${repo%.git}"
+          fi
           api_root="${ATOMGIT_API_URL:-https://api.gitcode.com}"
           api_root="${api_root%/}"
           api_root="${api_root%/v5}"
@@ -177,9 +180,12 @@ jobs:
 
           sudo yum install -y curl jq
 
-          repo_url="${ATOMGIT_REPOSITORY_URL:-https://gitcode.com/ComputingActionTest/ham_7628.git}"
-          repo="${repo_url#https://gitcode.com/}"
-          repo="${repo%.git}"
+          repo="${REPO_FULL_NAME:-}"
+          if [[ -z "${repo}" ]]; then
+            repo_url="${ATOMGIT_REPOSITORY_URL:-https://gitcode.com/ComputingActionTest/ham_7628.git}"
+            repo="${repo_url#https://gitcode.com/}"
+            repo="${repo%.git}"
+          fi
           api_root="${ATOMGIT_API_URL:-https://api.gitcode.com}"
           api_root="${api_root%/}"
           api_root="${api_root%/v5}"
@@ -267,11 +273,14 @@ jobs:
         run: |
           set -euo pipefail
 
-          sudo yum install -y curl jq
+          sudo yum install -y curl jq unzip
 
-          repo_url="${ATOMGIT_REPOSITORY_URL:-https://gitcode.com/ComputingActionTest/ham_7628.git}"
-          repo="${repo_url#https://gitcode.com/}"
-          repo="${repo%.git}"
+          repo="${REPO_FULL_NAME:-}"
+          if [[ -z "${repo}" ]]; then
+            repo_url="${ATOMGIT_REPOSITORY_URL:-https://gitcode.com/ComputingActionTest/ham_7628.git}"
+            repo="${repo_url#https://gitcode.com/}"
+            repo="${repo%.git}"
+          fi
           api_root="${ATOMGIT_API_URL:-https://api.gitcode.com}"
           api_root="${api_root%/}"
           api_root="${api_root%/v5}"
@@ -281,22 +290,72 @@ jobs:
           api_v8="${api_root}/api/v8"
           server_url="${ATOMGIT_SERVER_URL:-https://gitcode.com}"
 
-          status_token="${GATE_STATUS_TOKEN:-${ATOMGIT_TOKEN}}"
+          status_tokens=()
+          if [[ -n "${ATOMGIT_TOKEN:-}" ]]; then
+            status_tokens+=("${ATOMGIT_TOKEN}")
+          fi
+          if [[ -n "${GATE_STATUS_TOKEN:-}" ]] &&
+             [[ "${GATE_STATUS_TOKEN}" != "${ATOMGIT_TOKEN:-}" ]]; then
+            status_tokens+=("${GATE_STATUS_TOKEN}")
+          fi
+
+          if (( ${#status_tokens[@]} == 0 )); then
+            echo "No API token is available for gate reporting."
+            exit 1
+          fi
 
           api_get() {
             local url="$1"
+            local token
             local response
 
-            if response="$(curl -fsSL \
-              -H "PRIVATE-TOKEN: ${status_token}" \
-              "${url}" 2>/dev/null)"; then
-              printf '%s' "${response}"
-              return 0
-            fi
+            for token in "${status_tokens[@]}"; do
+              if response="$(curl -fsSL \
+                -H "PRIVATE-TOKEN: ${token}" \
+                "${url}" 2>/dev/null)"; then
+                printf '%s' "${response}"
+                return 0
+              fi
 
-            curl -fsSL \
-              -H "Authorization: token ${status_token}" \
-              "${url}"
+              if response="$(curl -fsSL \
+                -H "Authorization: token ${token}" \
+                "${url}" 2>/dev/null)"; then
+                printf '%s' "${response}"
+                return 0
+              fi
+            done
+
+            return 1
+          }
+
+          get_artifact_download_url() {
+            local url="$1"
+            local token
+            local download_url
+
+            for token in "${status_tokens[@]}"; do
+              download_url="$(curl -sS \
+                -o /dev/null \
+                -w '%{redirect_url}' \
+                -H "PRIVATE-TOKEN: ${token}" \
+                "${url}")"
+              if [[ -n "${download_url}" ]]; then
+                printf '%s' "${download_url}"
+                return 0
+              fi
+
+              download_url="$(curl -sS \
+                -o /dev/null \
+                -w '%{redirect_url}' \
+                -H "Authorization: token ${token}" \
+                "${url}")"
+              if [[ -n "${download_url}" ]]; then
+                printf '%s' "${download_url}"
+                return 0
+              fi
+            done
+
+            return 1
           }
 
           post_comment() {
@@ -327,6 +386,86 @@ jobs:
 
             if [[ -f "${file}" ]]; then
               tr -d '[:space:]' < "${file}"
+            else
+              printf 'FAILED'
+            fi
+          }
+
+          fetch_ci_result() {
+            local run_id="$1"
+            local artifact_name="$2"
+            local file_name="$3"
+            local artifacts_json
+            local artifact_id
+            local zip_file
+            local download_url
+            local extract_entry
+            local result
+
+            if [[ -z "${run_id}" ]]; then
+              printf 'FAILED'
+              return 0
+            fi
+
+            if ! artifacts_json="$(
+              api_get \
+                "${api_v8}/repos/${repo}/actions/runs/${run_id}/artifacts?name=${artifact_name}&per_page=100"
+            )"; then
+              printf 'FAILED'
+              return 0
+            fi
+
+            artifact_id="$(
+              jq -r \
+                --arg name "${artifact_name}" \
+                '
+                  [
+                    .artifacts[]?
+                    | select(.name == $name)
+                    | .id
+                  ]
+                  | last // empty
+                ' <<<"${artifacts_json}"
+            )"
+
+            if [[ -z "${artifact_id}" ]]; then
+              printf 'FAILED'
+              return 0
+            fi
+
+            zip_file="$(mktemp)"
+
+            if ! download_url="$(
+              get_artifact_download_url \
+                "${api_v8}/repos/${repo}/actions/artifacts/${artifact_id}/zip"
+            )" ||
+               ! curl -fsSL "${download_url}" -o "${zip_file}"; then
+              printf 'FAILED'
+              return 0
+            fi
+
+            extract_entry="$(
+              unzip -Z1 "${zip_file}" \
+                | grep -E "(^|/)${file_name}$" \
+                | head -n 1 || true
+            )"
+
+            if [[ -z "${extract_entry}" ]]; then
+              extract_entry="$(unzip -Z1 "${zip_file}" | head -n 1)"
+            fi
+
+            if [[ -z "${extract_entry}" ]]; then
+              printf 'FAILED'
+              return 0
+            fi
+
+            result="$(
+              unzip -p "${zip_file}" "${extract_entry}" \
+                | tr -d '[:space:]'
+            )"
+
+            if [[ "${result}" == "SUCCESS" ]]; then
+              printf 'SUCCESS'
             else
               printf 'FAILED'
             fi
@@ -474,17 +613,25 @@ jobs:
           echo "build_run_id=${build_run_id}"
           echo "build_run_status=${build_run_status}"
 
-          if [[ "${build_run_status}" == "COMPLETED" || "${build_run_status}" == "SUCCESS" ]]; then
-            x86_status="SUCCESS"
-            arm_status="SUCCESS"
-            precommit_status="SUCCESS"
-            dt_status="SUCCESS"
-          else
-            x86_status="FAILED"
-            arm_status="FAILED"
-            precommit_status="FAILED"
-            dt_status="FAILED"
-          fi
+          precommit_status="$(
+            fetch_ci_result \
+              "${build_run_id}" "ci-result-pre-commit" "pre-commit"
+          )"
+
+          x86_status="$(
+            fetch_ci_result \
+              "${build_run_id}" "ci-result-x86-64" "x86_64"
+          )"
+
+          arm_status="$(
+            fetch_ci_result \
+              "${build_run_id}" "ci-result-aarch64" "aarch64"
+          )"
+
+          dt_status="$(
+            fetch_ci_result \
+              "${build_run_id}" "ci-result-dt" "DT"
+          )"
 
           overall_failed=0
 
