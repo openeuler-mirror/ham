@@ -78,6 +78,25 @@ jobs:
 
           pre-commit run clang-format --all-files
 
+      - name: Save result
+        if: ${{ always() }}
+        env:
+          CURRENT_JOB_STATUS: ${{ job.status }}
+        run: |
+          mkdir -p .ci-results
+          if [[ "${CURRENT_JOB_STATUS}" == "success" ]]; then
+            echo "SUCCESS" > .ci-results/pre-commit
+          else
+            echo "FAILED" > .ci-results/pre-commit
+          fi
+
+      - name: Upload result
+        if: ${{ always() }}
+        uses: upload-artifact
+        with:
+          name: ci-result-pre-commit
+          path: .ci-results/pre-commit
+
   build_x86_64:
     name: build-x86-64
     runs-on: [self-hosted, openeuler, x86, cpu=8]
@@ -91,6 +110,25 @@ jobs:
           # 原 Jenkins x86_64 Job 没有 checkout/build 命令，只是空 Job 返回 SUCCESS。
           # 这里严格保留该行为。
           echo "HAM is an ARM64-only project; x86_64 check is not applicable."
+
+      - name: Save result
+        if: ${{ always() }}
+        env:
+          CURRENT_JOB_STATUS: ${{ job.status }}
+        run: |
+          mkdir -p .ci-results
+          if [[ "${CURRENT_JOB_STATUS}" == "success" ]]; then
+            echo "SUCCESS" > .ci-results/x86_64
+          else
+            echo "FAILED" > .ci-results/x86_64
+          fi
+
+      - name: Upload result
+        if: ${{ always() }}
+        uses: upload-artifact
+        with:
+          name: ci-result-x86-64
+          path: .ci-results/x86_64
 
   build_aarch64:
     name: build-aarch64
@@ -122,11 +160,36 @@ jobs:
         run: |
           set -euxo pipefail
 
-          cmake -DCMAKE_BUILD_TYPE=release .
-          make -j"$(nproc)" install
+          bash build.sh -t release
 
-          test -f output/ham/lib/libham.so
-          test -f output/ham/include/ham.h
+          test -f output/ham_package/lib/libham.so
+          test -f output/ham_package/include/ham.h
+          test -f output/ham_1.0.0_Linux-aarch64_release.tar.gz
+
+      - name: Upload release package
+        uses: upload-artifact
+        with:
+          name: ham-release-aarch64
+          path: output/ham_1.0.0_Linux-aarch64_release.tar.gz
+
+      - name: Save result
+        if: ${{ always() }}
+        env:
+          CURRENT_JOB_STATUS: ${{ job.status }}
+        run: |
+          mkdir -p .ci-results
+          if [[ "${CURRENT_JOB_STATUS}" == "success" ]]; then
+            echo "SUCCESS" > .ci-results/aarch64
+          else
+            echo "FAILED" > .ci-results/aarch64
+          fi
+
+      - name: Upload result
+        if: ${{ always() }}
+        uses: upload-artifact
+        with:
+          name: ci-result-aarch64
+          path: .ci-results/aarch64
 
   dt:
     name: DT
@@ -161,16 +224,13 @@ jobs:
             sudo yum install -y lcov
           fi
 
-      - name: Prepare mockcpp
+      - name: Prepare submodules
         run: |
           set -euxo pipefail
 
-          # 与原 Jenkins 一致，先显式获取 mockcpp。
-          if [[ ! -d test/3rdparty/mockcpp/.git ]]; then
-            git clone \
-              https://gitee.com/mirrors_sinojelly/mockcpp.git \
-              test/3rdparty/mockcpp
-          fi
+          # 先按 .gitmodules 初始化，避免手工克隆后 run_dt.sh 再次
+          # 更新同一子模块时因目录非空而失败。
+          git submodule update --init --recursive
 
       - name: Run HAM DT
         run: |
@@ -186,3 +246,22 @@ jobs:
             test/build/gcovr_report/
             test/build/coverage.info
             test/build/gcovr_report/test_detail.xml
+
+      - name: Save result
+        if: ${{ always() }}
+        env:
+          CURRENT_JOB_STATUS: ${{ job.status }}
+        run: |
+          mkdir -p .ci-results
+          if [[ "${CURRENT_JOB_STATUS}" == "success" ]]; then
+            echo "SUCCESS" > .ci-results/DT
+          else
+            echo "FAILED" > .ci-results/DT
+          fi
+
+      - name: Upload result
+        if: ${{ always() }}
+        uses: upload-artifact
+        with:
+          name: ci-result-dt
+          path: .ci-results/DT
