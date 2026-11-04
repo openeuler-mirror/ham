@@ -219,8 +219,7 @@ stages:
                 libboundscheck \
                 libvirt \
                 libvirt-devel \
-                dos2unix \
-                lcov
+                dos2unix
 
           - name: Prepare mockcpp submodule
             run: |
