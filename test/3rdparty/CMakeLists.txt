@@ -21,19 +21,20 @@ SET(THIRD_PARTY_CMAKE_ARGS
 message(STATUS "TEST THIRD_PARTY_DIR=${THIRD_PARTY_DIR}")
 ######################################################################
 # Gtest
-# 使用 openEuler 社区开源件 src-openeuler/googletest（humble 分支，googletest 1.10.9004）
+# 使用 openEuler 社区开源件 src-openeuler/googletest（googletest 1.10.9006）
 ######################################################################
-SET(GTEST_VERSION "1.10.9004")
-SET(GTEST_TARBALL_NAME "ros-humble-gtest-vendor_${GTEST_VERSION}.orig.tar.gz")
-SET(GTEST_TARBALL_SHA256 "79b5f1bd841f84ac1b289ab362031cb18ef396fb6234ddf003af09bca3e050fa")
+SET(GTEST_VERSION "1.10.9006")
+SET(GTEST_TARBALL_NAME "gtest-vendor-${GTEST_VERSION}.tar.gz")
+SET(GTEST_TARBALL_SHA256 "09a7a2df16c69346dbdea9622f3ef74496d886e2713248d215bb57c0ab1c5d78")
 SET(GTEST_OPENEULER_REPO "https://gitcode.com/src-openeuler/googletest.git")
 SET(GTEST_OPENEULER_BRANCH "humble")
-SET(GTEST_OPENEULER_RAW_URL "https://gitcode.com/api/v5/repos/src-openeuler/googletest/raw/${GTEST_TARBALL_NAME}?ref=${GTEST_OPENEULER_BRANCH}")
+SET(GTEST_OPENEULER_RAW_URL
+        "https://raw.gitcode.com/src-openeuler/googletest/blobs/80c4aeed6cb3c49a1c2de69187a6e546733ff75e/${GTEST_TARBALL_NAME}")
 SET(GTEST_DOWNLOAD_DIR ${CMAKE_BINARY_DIR}/3rdparty/gtest-download)
 
 # 始终使用锁定并校验的 openEuler 源码包，避免残留的本地目录污染构建版本
 MESSAGE(STATUS "gtest: fetch openEuler open-source googletest ${GTEST_VERSION} from ${GTEST_OPENEULER_REPO}")
-SET(GTEST_SOURCE_DIR ${GTEST_DOWNLOAD_DIR}/ros-humble-gtest-vendor-${GTEST_VERSION})
+SET(GTEST_SOURCE_DIR ${GTEST_DOWNLOAD_DIR}/gtest-vendor-${GTEST_VERSION})
 SET(GTEST_DOWNLOAD_COMMAND
         ${CMAKE_COMMAND} -E make_directory ${GTEST_DOWNLOAD_DIR}
         COMMAND curl -fsSL --retry 3 --connect-timeout 30 -o ${GTEST_DOWNLOAD_DIR}/${GTEST_TARBALL_NAME} ${GTEST_OPENEULER_RAW_URL}
