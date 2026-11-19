@@ -64,6 +64,7 @@ jobs:
         with:
           add_labels: ci_processing
           remove_labels: ci_failed,ci_successful
+          token: ${{secrets.OPENEULER_BOT_TOKEN}}
 
   issue_check:
     name: Issue check
@@ -275,4 +276,4 @@ jobs:
         with:
           add_labels: ${{ needs.mark_running.result == 'success' && needs.issue_check.result == 'success' && needs.check_sca.result == 'success' && needs.check_anti_poisoning.result == 'success' && needs.validation.result == 'success' && 'ci_successful' || 'ci_failed' }}
           remove_labels: ci_processing,${{ needs.mark_running.result == 'success' && needs.issue_check.result == 'success' && needs.check_sca.result == 'success' && needs.check_anti_poisoning.result == 'success' && needs.validation.result == 'success' && 'ci_failed' || 'ci_successful' }}
-
+          token: ${{secrets.OPENEULER_BOT_TOKEN}}
